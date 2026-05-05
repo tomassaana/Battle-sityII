@@ -2,6 +2,8 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "renderer/ShaderProgram.h"
+#include"resources/ResourceManager.h"
+
 
 
 
@@ -16,26 +18,6 @@ GLfloat colors[] = {
     0.0f, 1.0f, 0.0f, // Green
     0.0f, 0.0f, 1.0f  // Blue
 };
-
-const char* vertex_shader = 
-"#version 460 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"layout (location = 1) in vec3 aColor;\n"
-"out vec3 ourColor;\n"
-"void main()\n"
-"{\n"
-"   ourColor = aColor;\n"
-"   gl_Position = vec4(aPos, 1.0);\n"
-"}\n";
-
-const char* fragment_shader = 
-"#version 460 core\n"
-"in vec3 ourColor;\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(ourColor, 1.0);\n"
-"}\n";
 
 
 
@@ -60,8 +42,15 @@ void glfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int
 
 
 //==========================================================
-int main(void)
+int main(int argc, char** argv)
 {
+
+	ResourceManager resourceManager(argv[0]); 
+
+
+
+
+
     /* Initialize the library */
     if (!glfwInit()) {      
 		std::cout << "Failed to initialize GLFW !!!" << std::endl;
@@ -105,8 +94,8 @@ int main(void)
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // Set the clear color to a specific RGBA value (in this case, a shade of teal)
 
-	std::string vertexShader(vertex_shader); // Create a std::string object from the vertex shader source code
-	std::string fragmentShader(fragment_shader); // Create a std::string object from the fragment shader source code
+    std::string vertexShader;//(vertex_shader); // Create a std::string object from the vertex shader source code
+    std::string fragmentShader;//(fragment_shader); // Create a std::string object from the fragment shader source code
 
 	Renderer::ShaderProgram shaderProgram(vertexShader, fragmentShader);
     if (!shaderProgram.isCompiled()) 

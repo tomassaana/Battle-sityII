@@ -1,13 +1,13 @@
 cmake_minimum_required (VERSION 3.13 FATAL_ERROR) 
-
 set(PROJ BattleCity)
 project(${PROJ})	
-#set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(${PROJ} src/main.cpp
 	src/renderer/ShaderProgram.cpp
 	src/renderer/ShaderProgram.h
-				
+	src/resources/ResourceManager.cpp
+	src/resources/ResourceManager.h
+
 )
  
 target_compile_features(${PROJ} PUBLIC cxx_std_17)
