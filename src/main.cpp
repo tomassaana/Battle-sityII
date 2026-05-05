@@ -1,6 +1,9 @@
 #include<glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "renderer/ShaderProgram.h"
+
+
 
 GLfloat points[] = {
     -0.5f, -0.5f, 0.0f, // Left  
@@ -102,21 +105,16 @@ int main(void)
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // Set the clear color to a specific RGBA value (in this case, a shade of teal)
 
-	GLuint vs = glCreateShader(GL_VERTEX_SHADER); // Create a vertex shader object and store its ID in the variable vs
-    	glShaderSource(vs, 1, &vertex_shader, nullptr); // Attach the vertex shader source code to the shader object
-    	glCompileShader(vs); // Compile the vertex shader
+	std::string vertexShader(vertex_shader); // Create a std::string object from the vertex shader source code
+	std::string fragmentShader(fragment_shader); // Create a std::string object from the fragment shader source code
 
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER); // Create a fragment shader object and store its ID in the variable fs
-        glShaderSource(fs, 1, &fragment_shader, nullptr); // Attach the fragment shader source code to the shader object
-		glCompileShader(fs); // Compile the fragment shader
-		
-     GLuint shaderProgram = glCreateProgram(); // Create a shader program object and return its ID
-	 glAttachShader(shaderProgram, vs); // Attach the compiled vertex shader to the shader program
-     glAttachShader(shaderProgram, fs); // Attach the compiled fragment shader to the shader program
-     glLinkProgram(shaderProgram); // Link the shader program, which combines the vertex and fragment shaders into a single executable program that can be used for rendering
-     
-     glDeleteShader(vs); // Delete the vertex shader object, as it is no longer needed after linking
-	 glDeleteShader(fs); // Delete the fragment shader object, as it is no longer needed after linking
+	Renderer::ShaderProgram shaderProgram(vertexShader, fragmentShader);
+    if (!shaderProgram.isCompiled()) 
+    {
+        std::cerr << "ERROR::SHADER: Shader program compilation failed !!!" << std::endl;
+		return -1;
+    }
+
 	 
      GLuint points_vbo = 0; // Declare a variable to hold the vertex buffer object (VBO) ID for the points data
      glGenBuffers(1, &points_vbo); // Generate a buffer object and store its ID in points_vbo
@@ -154,7 +152,9 @@ int main(void)
         // contents and prepare for drawing the new frame.
 		glClear(GL_COLOR_BUFFER_BIT);
         
-		glUseProgram(shaderProgram); // Set the current active shader program to the one we created and linked earlier
+		shaderProgram.use(); // Activate the shader program for rendering, making it the current active shader program that will be used for drawing operations
+
+
 		glBindVertexArray(vao); // Bind the vertex array object, making it the current active VAO for rendering
 		glDrawArrays(GL_TRIANGLES, 0, 3); // Issue a draw call to render the vertices as triangles, starting from the first vertex (index 0) and drawing a total of 3 vertices (which form one triangle)
 
