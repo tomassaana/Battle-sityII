@@ -45,13 +45,7 @@ void glfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int
 int main(int argc, char** argv)
 {
 
-	ResourceManager resourceManager(argv[0]); 
-
-
-
-
-
-    /* Initialize the library */
+	/* Initialize the library */
     if (!glfwInit()) {      
 		std::cout << "Failed to initialize GLFW !!!" << std::endl;
         return -1;
@@ -94,69 +88,68 @@ int main(int argc, char** argv)
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // Set the clear color to a specific RGBA value (in this case, a shade of teal)
 
-    std::string vertexShader;//(vertex_shader); // Create a std::string object from the vertex shader source code
-    std::string fragmentShader;//(fragment_shader); // Create a std::string object from the fragment shader source code
-
-	Renderer::ShaderProgram shaderProgram(vertexShader, fragmentShader);
-    if (!shaderProgram.isCompiled()) 
+    
     {
-        std::cerr << "ERROR::SHADER: Shader program compilation failed !!!" << std::endl;
-		return -1;
+        ResourceManager resourceManager(argv[0]);
+        auto pDefaultShaderProgram = resourceManager.loadShaders("DefaultShader", "res/shaders/vertex.txt", "res/shaders/fragment.txt");
+        if (!pDefaultShaderProgram)
+        {
+            std::cerr << "Failed to load default shader  !!! program !!!" << "DefaultShader" << std::endl;
+            return -1;
+        }
+
+
+
+        GLuint points_vbo = 0; // Declare a variable to hold the vertex buffer object (VBO) ID for the points data
+        glGenBuffers(1, &points_vbo); // Generate a buffer object and store its ID in points_vbo
+        glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Bind the buffer object to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
+        glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW); // Upload the points data to the GPU memory, specifying the size of the data and its usage pattern (GL_STATIC_DRAW indicates that the data will not change frequently)
+
+        GLuint colors_vbo = 0; // Declare a variable to hold the vertex buffer object (VBO) ID for the colors data
+        glGenBuffers(1, &colors_vbo); // Generate a buffer object and store its ID in colors_vbo
+        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // Bind the buffer object to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
+        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW); // Upload the colors data to the GPU memory, specifying the size of the data and its usage pattern (GL_STATIC_DRAW indicates that the data will not change frequently)
+
+        GLuint vao = 0; // Declare a variable to hold the vertex array object (VAO) ID
+        glGenVertexArrays(1, &vao); // Generate a vertex array object and store its ID in vao
+        glBindVertexArray(vao); // Bind the vertex array object, making it the current active VAO for storing vertex attribute configurations
+
+        glEnableVertexAttribArray(0); // Enable the vertex attribute array at index 0, which corresponds to the position attribute in the vertex shader
+        glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Bind the points VBO to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // Define the layout of the vertex data for the position attribute
+
+        glEnableVertexAttribArray(1); // Enable the vertex attribute array at index 1, which corresponds to the color attribute in the vertex shader
+        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // Bind the colors VBO to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // Define the layout of the vertex data for the color attribute
+
+
+
+
+
+        /* Loop until the user closes the window ====================================================================== */
+        while (!glfwWindowShouldClose(pwindow))
+        {
+            /* Render here */
+            // openGL function to clear the color buffer, 
+            // which is the buffer that holds the color values for each pixel on the screen. 
+            // This is typically done at the beginning of each frame to clear the previous frame's 
+            // contents and prepare for drawing the new frame.
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            pDefaultShaderProgram->use();
+            glBindVertexArray(vao); // Bind the vertex array object, making it the current active VAO for rendering
+            glDrawArrays(GL_TRIANGLES, 0, 3); // Issue a draw call to render the vertices as triangles, starting from the first vertex (index 0) and drawing a total of 3 vertices (which form one triangle)
+
+
+            /* Swap front and back buffers */
+            glfwSwapBuffers(pwindow);
+
+
+
+            /* Poll for and process events */
+            glfwPollEvents();
+        }
     }
-
-	 
-     GLuint points_vbo = 0; // Declare a variable to hold the vertex buffer object (VBO) ID for the points data
-     glGenBuffers(1, &points_vbo); // Generate a buffer object and store its ID in points_vbo
-     glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Bind the buffer object to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
-	 glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW); // Upload the points data to the GPU memory, specifying the size of the data and its usage pattern (GL_STATIC_DRAW indicates that the data will not change frequently)
-
-	 GLuint colors_vbo = 0; // Declare a variable to hold the vertex buffer object (VBO) ID for the colors data
-     glGenBuffers(1, &colors_vbo); // Generate a buffer object and store its ID in colors_vbo
-	 glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // Bind the buffer object to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
-   	 glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW); // Upload the colors data to the GPU memory, specifying the size of the data and its usage pattern (GL_STATIC_DRAW indicates that the data will not change frequently)
-
-	 GLuint vao = 0; // Declare a variable to hold the vertex array object (VAO) ID
-     glGenVertexArrays(1, &vao); // Generate a vertex array object and store its ID in vao
-	 glBindVertexArray(vao); // Bind the vertex array object, making it the current active VAO for storing vertex attribute configurations
-
-	 glEnableVertexAttribArray(0); // Enable the vertex attribute array at index 0, which corresponds to the position attribute in the vertex shader
-	 glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Bind the points VBO to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
-     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // Define the layout of the vertex data for the position attribute
-
-	 glEnableVertexAttribArray(1); // Enable the vertex attribute array at index 1, which corresponds to the color attribute in the vertex shader
-	 glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // Bind the colors VBO to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
-     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // Define the layout of the vertex data for the color attribute
-     
-
-
-
-
-    /* Loop until the user closes the window ====================================================================== */
-    while (!glfwWindowShouldClose(pwindow))
-    {
-        /* Render here */
-        // openGL function to clear the color buffer, 
-        // which is the buffer that holds the color values for each pixel on the screen. 
-        // This is typically done at the beginning of each frame to clear the previous frame's 
-        // contents and prepare for drawing the new frame.
-		glClear(GL_COLOR_BUFFER_BIT);
-        
-		shaderProgram.use(); // Activate the shader program for rendering, making it the current active shader program that will be used for drawing operations
-
-
-		glBindVertexArray(vao); // Bind the vertex array object, making it the current active VAO for rendering
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Issue a draw call to render the vertices as triangles, starting from the first vertex (index 0) and drawing a total of 3 vertices (which form one triangle)
-
-
-        /* Swap front and back buffers */
-        glfwSwapBuffers(pwindow);
-
-
-
-        /* Poll for and process events */
-        glfwPollEvents();
-    }
-
     glfwTerminate();
     return 0;
 }
