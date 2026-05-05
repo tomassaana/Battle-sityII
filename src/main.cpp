@@ -2,30 +2,52 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+int gWindowWidth = 800  ;
+int gWindowHeight = 600;
+
+void glfwWindowSizeCallback(GLFWwindow* pWindow, int sizeX  , int sizeY)
+{
+	gWindowWidth = sizeX;// Update the global variable gWindowWidth with the new width of the window
+	gWindowHeight = sizeY;// Update the global variable gWindowHeight with the new height of the window
+    // Set the viewport to cover the new window dimensions, ensuring that the rendered content scales appropriately with the window size
+	glViewport(0, 0, sizeX, sizeY);
+}
+
+void glfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) // Check if the Escape key was pressed
+        glfwSetWindowShouldClose(pWindow, true); // Set the window's should-close flag to true, which will cause the main loop to exit and the window to close
+}
+
+
+
+//==========================================================
 int main(void)
 {
-
-
     /* Initialize the library */
     if (!glfwInit()) {      
+		std::cout << "Failed to initialize GLFW !!!" << std::endl;
         return -1;
-        }
-
+     }
 
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // Set the major version of the OpenGL context to 4
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6); // Set the minor version of the OpenGL context to 6
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Set the OpenGL profile to core, which means that deprecated features will not be available
 
-
     /* Create a windowed mode window and its OpenGL context */
-    GLFWwindow* pwindow = glfwCreateWindow(640, 480, "BattleSity-II", nullptr, nullptr);
+    GLFWwindow* pwindow = glfwCreateWindow(gWindowWidth, gWindowHeight, "BattleSity-II", nullptr, nullptr);
     if (!pwindow)
 	{
 		std::cout << "Failed to create GLFW window !!!" << std::endl;
         glfwTerminate();
         return -1;
     }
+
+        // Set the window size callback to handle window resizing
+         glfwSetWindowSizeCallback(pwindow, glfwWindowSizeCallback);
+		 glfwSetKeyCallback(pwindow, glfwKeyCallback); // Set the key callback to handle keyboard input  
+
 
     /* Make the window's context current */
     glfwMakeContextCurrent(pwindow);
@@ -35,6 +57,8 @@ int main(void)
         std::cout << "Failed to load GLAD" << std::endl;
         return -1;
 	}
+
+
 
 	std::cout << "OpenGL Renderer: " << glGetString(GL_RENDERER) << std::endl; // Print the renderer information to the console
 	std::cout << "OpenGL vendor: " << glGetString(GL_VENDOR) << std::endl; // Print the vendor information to the console 
