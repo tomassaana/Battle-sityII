@@ -2,6 +2,41 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+GLfloat points[] = {
+    -0.5f, -0.5f, 0.0f, // Left  
+     0.5f, -0.5f, 0.0f, // Right 
+     0.0f,  0.5f, 0.0f  // Top   
+};
+
+GLfloat colors[] = {
+    1.0f, 0.0f, 0.0f, // Red
+    0.0f, 1.0f, 0.0f, // Green
+    0.0f, 0.0f, 1.0f  // Blue
+};
+
+const char* vertex_shader = 
+"#version 460 core\n"
+"layout (location = 0) in vec3 aPos;\n"
+"layout (location = 1) in vec3 aColor;\n"
+"out vec3 ourColor;\n"
+"void main()\n"
+"{\n"
+"   ourColor = aColor;\n"
+"   gl_Position = vec4(aPos, 1.0);\n"
+"}\n";
+
+const char* fragment_shader = 
+"#version 460 core\n"
+"in vec3 ourColor;\n"
+"out vec4 FragColor;\n"
+"void main()\n"
+"{\n"
+"   FragColor = vec4(ourColor, 1.0);\n"
+"}\n";
+
+
+
+
 int gWindowWidth = 800  ;
 int gWindowHeight = 600;
 
@@ -67,6 +102,47 @@ int main(void)
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // Set the clear color to a specific RGBA value (in this case, a shade of teal)
 
+	GLuint vs = glCreateShader(GL_VERTEX_SHADER); // Create a vertex shader object and store its ID in the variable vs
+    	glShaderSource(vs, 1, &vertex_shader, nullptr); // Attach the vertex shader source code to the shader object
+    	glCompileShader(vs); // Compile the vertex shader
+
+    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER); // Create a fragment shader object and store its ID in the variable fs
+        glShaderSource(fs, 1, &fragment_shader, nullptr); // Attach the fragment shader source code to the shader object
+		glCompileShader(fs); // Compile the fragment shader
+		
+     GLuint shaderProgram = glCreateProgram(); // Create a shader program object and return its ID
+	 glAttachShader(shaderProgram, vs); // Attach the compiled vertex shader to the shader program
+     glAttachShader(shaderProgram, fs); // Attach the compiled fragment shader to the shader program
+     glLinkProgram(shaderProgram); // Link the shader program, which combines the vertex and fragment shaders into a single executable program that can be used for rendering
+     
+     glDeleteShader(vs); // Delete the vertex shader object, as it is no longer needed after linking
+	 glDeleteShader(fs); // Delete the fragment shader object, as it is no longer needed after linking
+	 
+     GLuint points_vbo = 0; // Declare a variable to hold the vertex buffer object (VBO) ID for the points data
+     glGenBuffers(1, &points_vbo); // Generate a buffer object and store its ID in points_vbo
+     glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Bind the buffer object to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
+	 glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW); // Upload the points data to the GPU memory, specifying the size of the data and its usage pattern (GL_STATIC_DRAW indicates that the data will not change frequently)
+
+	 GLuint colors_vbo = 0; // Declare a variable to hold the vertex buffer object (VBO) ID for the colors data
+     glGenBuffers(1, &colors_vbo); // Generate a buffer object and store its ID in colors_vbo
+	 glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // Bind the buffer object to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
+   	 glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW); // Upload the colors data to the GPU memory, specifying the size of the data and its usage pattern (GL_STATIC_DRAW indicates that the data will not change frequently)
+
+	 GLuint vao = 0; // Declare a variable to hold the vertex array object (VAO) ID
+     glGenVertexArrays(1, &vao); // Generate a vertex array object and store its ID in vao
+	 glBindVertexArray(vao); // Bind the vertex array object, making it the current active VAO for storing vertex attribute configurations
+
+	 glEnableVertexAttribArray(0); // Enable the vertex attribute array at index 0, which corresponds to the position attribute in the vertex shader
+	 glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Bind the points VBO to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
+     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // Define the layout of the vertex data for the position attribute
+
+	 glEnableVertexAttribArray(1); // Enable the vertex attribute array at index 1, which corresponds to the color attribute in the vertex shader
+	 glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // Bind the colors VBO to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
+     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // Define the layout of the vertex data for the color attribute
+     
+
+
+
 
     /* Loop until the user closes the window ====================================================================== */
     while (!glfwWindowShouldClose(pwindow))
@@ -77,9 +153,16 @@ int main(void)
         // This is typically done at the beginning of each frame to clear the previous frame's 
         // contents and prepare for drawing the new frame.
 		glClear(GL_COLOR_BUFFER_BIT);
-         
+        
+		glUseProgram(shaderProgram); // Set the current active shader program to the one we created and linked earlier
+		glBindVertexArray(vao); // Bind the vertex array object, making it the current active VAO for rendering
+		glDrawArrays(GL_TRIANGLES, 0, 3); // Issue a draw call to render the vertices as triangles, starting from the first vertex (index 0) and drawing a total of 3 vertices (which form one triangle)
+
+
         /* Swap front and back buffers */
         glfwSwapBuffers(pwindow);
+
+
 
         /* Poll for and process events */
         glfwPollEvents();
