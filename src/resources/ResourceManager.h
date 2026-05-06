@@ -23,12 +23,9 @@ public:
 	ResourceManager& operator=(ResourceManager&&) = delete;
 	ResourceManager(ResourceManager&&) = delete;
 
-	std::shared_ptr<Renderer::ShaderProgram> loadShaders(const std::string shaderName, 
-														const std::string& vertexShaderPath,
-														const std::string& fragmentShaderPath);
-	
+	std::shared_ptr<Renderer::ShaderProgram> loadShaders(const std::string shaderName,const std::string& vertexShaderPath,const std::string& fragmentShaderPath);
 	std::shared_ptr<Renderer::ShaderProgram> getShaderProgram(const std::string& shaderName) ;
-
+	void loadTexture(const std::string& textureName, const std::string& texturePath);
 
 
 private:

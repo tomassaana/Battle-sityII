@@ -4,6 +4,10 @@
 #include <sstream>
 #include <iostream>
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_PNG 
+#include "stb_image.h"
+
 
 ResourceManager::ResourceManager(const std::string& exePath)
 {
@@ -53,6 +57,7 @@ std::shared_ptr<Renderer::ShaderProgram> ResourceManager::getShaderProgram(const
 
 }
 
+
 std::string ResourceManager::getFileString(const std::string& relativePath) const
 {
 	std::ifstream f;
@@ -71,5 +76,17 @@ std::string ResourceManager::getFileString(const std::string& relativePath) cons
 }
 
 
+void ResourceManager::loadTexture(const std::string& textureName, const std::string& texturePath)
+{
+	int channels = 0;
+	int width = 0;
+	int height = 0;
+	unsigned char* pixels = stbi_load(std::string(m_path+"/"+textureName ).c_str(),&width, &height, &channels, 0);
+	if (!pixels)
+	{
+		std::cerr << "Failed to load texture: " << texturePath << std::endl;
+		return;
+	}
+}
 
 

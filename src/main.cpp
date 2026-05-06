@@ -8,22 +8,22 @@
 
 
 GLfloat points[] = {
-    -0.5f, -0.5f, 0.0f, // Left  
-     0.5f, -0.5f, 0.0f, // Right 
-     0.0f,  0.5f, 0.0f  // Top   
+      0.0,  0.5f, 0.0f, 
+      0.5f,-0.5f, 0.0f, 
+     -0.5f,-0.5f, 0.0f  
 };
 
 GLfloat colors[] = {
-    1.0f, 0.0f, 0.0f, // Red
-    0.0f, 1.0f, 0.0f, // Green
-    0.0f, 0.0f, 1.0f  // Blue
+    1.0f, 0.0f, 0.0f, 
+    0.0f, 1.0f, 0.0f, 
+    0.0f, 0.0f, 1.0f 
 };
 
 
 
 
-int gWindowWidth = 800  ;
-int gWindowHeight = 600;
+int gWindowWidth = 640  ;
+int gWindowHeight = 480;
 
 void glfwWindowSizeCallback(GLFWwindow* pWindow, int sizeX  , int sizeY)
 {
@@ -100,27 +100,27 @@ int main(int argc, char** argv)
 
 
 
-        GLuint points_vbo = 0; // Declare a variable to hold the vertex buffer object (VBO) ID for the points data
-        glGenBuffers(1, &points_vbo); // Generate a buffer object and store its ID in points_vbo
-        glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Bind the buffer object to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
-        glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW); // Upload the points data to the GPU memory, specifying the size of the data and its usage pattern (GL_STATIC_DRAW indicates that the data will not change frequently)
+        GLuint points_vbo = 0; 
+        glGenBuffers(1, &points_vbo); 
+        glBindBuffer(GL_ARRAY_BUFFER, points_vbo); 
+        glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
 
-        GLuint colors_vbo = 0; // Declare a variable to hold the vertex buffer object (VBO) ID for the colors data
-        glGenBuffers(1, &colors_vbo); // Generate a buffer object and store its ID in colors_vbo
-        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // Bind the buffer object to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
-        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW); // Upload the colors data to the GPU memory, specifying the size of the data and its usage pattern (GL_STATIC_DRAW indicates that the data will not change frequently)
+        GLuint colors_vbo = 0; 
+        glGenBuffers(1, &colors_vbo); 
+        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW); 
 
-        GLuint vao = 0; // Declare a variable to hold the vertex array object (VAO) ID
-        glGenVertexArrays(1, &vao); // Generate a vertex array object and store its ID in vao
-        glBindVertexArray(vao); // Bind the vertex array object, making it the current active VAO for storing vertex attribute configurations
+        GLuint vao = 0; 
+        glGenVertexArrays(1, &vao); 
+        glBindVertexArray(vao); 
 
-        glEnableVertexAttribArray(0); // Enable the vertex attribute array at index 0, which corresponds to the position attribute in the vertex shader
-        glBindBuffer(GL_ARRAY_BUFFER, points_vbo); // Bind the points VBO to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // Define the layout of the vertex data for the position attribute
+        glEnableVertexAttribArray(0); 
+        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        glEnableVertexAttribArray(1); // Enable the vertex attribute array at index 1, which corresponds to the color attribute in the vertex shader
-        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo); // Bind the colors VBO to the GL_ARRAY_BUFFER target, making it the current active buffer for vertex data
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // Define the layout of the vertex data for the color attribute
+        glEnableVertexAttribArray(1); 
+        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); 
 
 
 

@@ -7,6 +7,7 @@ add_executable(${PROJ} src/main.cpp
 	src/renderer/ShaderProgram.h
 	src/resources/ResourceManager.cpp
 	src/resources/ResourceManager.h
+	src/resources/stb_image.h
 
 )
  
