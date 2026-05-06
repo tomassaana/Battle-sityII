@@ -4,14 +4,19 @@
 #include"renderer/ShaderProgram.h"
 #include"renderer/Texture2D.h"
 #include"resources/ResourceManager.h"
+#include<glm/vec2.hpp>
+#include<glm/mat4x4.hpp>
+#include<glm/gtc/matrix_transform.hpp>
+
+
 
 
 
 
 GLfloat points[] = {
-      0.0,  0.5f, 0.0f, 
-      0.5f,-0.5f, 0.0f, 
-     -0.5f,-0.5f, 0.0f  
+      0.0,  50.f, 0.0f, 
+      50.f,-50.f, 0.0f, 
+     -50.f,-50.f, 0.0f  
 };
 
 GLfloat colors[] = {
@@ -26,16 +31,17 @@ GLfloat texCoords[] = {
     0.0f, 0.0f
 };
 
+glm::vec2 gWSize(640.f, 480.f); 
 
-int gWindowWidth = 640  ;
-int gWindowHeight = 480;
+//int gWindowWidth = 640.f  ;
+//int gWindowHeight = 480.f;
 
 void glfwWindowSizeCallback(GLFWwindow* pWindow, int sizeX  , int sizeY)
 {
-	gWindowWidth = sizeX;// Update the global variable gWindowWidth with the new width of the window
-	gWindowHeight = sizeY;// Update the global variable gWindowHeight with the new height of the window
+    gWSize.x = sizeX;// Update the global variable gWindowWidth with the new width of the window
+    gWSize.y = sizeY;// Update the global variable gWindowHeight with the new height of the window
     // Set the viewport to cover the new window dimensions, ensuring that the rendered content scales appropriately with the window size
-	glViewport(0, 0, sizeX, sizeY);
+	glViewport(0, 0, gWSize.x, gWSize.y);
 }
 
 void glfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int mods)
@@ -62,7 +68,7 @@ int main(int argc, char** argv)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Set the OpenGL profile to core, which means that deprecated features will not be available
 
     /* Create a windowed mode window and its OpenGL context */
-    GLFWwindow* pwindow = glfwCreateWindow(gWindowWidth, gWindowHeight, "BattleSity-II", nullptr, nullptr);
+    GLFWwindow* pwindow = glfwCreateWindow(gWSize.x, gWSize.y, "BattleSity-II", nullptr, nullptr);
     if (!pwindow)
 	{
 		std::cout << "Failed to create GLFW window !!!" << std::endl;
@@ -104,7 +110,7 @@ int main(int argc, char** argv)
         }
 
 
-		auto tex =resourceManager.loadTexture("DefaultTexture", "res/textures/map_16x16.png");
+		auto tex =resourceManager.loadTexture("DefaultTexture", "res/textures/new_atlas_128x128.png");
 
 
         GLuint points_vbo = 0; 
@@ -143,22 +149,34 @@ int main(int argc, char** argv)
 		pDefaultShaderProgram->use();
 		pDefaultShaderProgram->setInt("tex", 0); 
 
+		glm::mat4 modeMatrix_1 = glm::mat4(1.f); 
+		modeMatrix_1 = glm::translate(modeMatrix_1, glm::vec3(100.f, 50.f, 0.f));
+
+        glm::mat4 modeMatrix_2 = glm::mat4(1.f);
+        modeMatrix_2 = glm::translate(modeMatrix_2, glm::vec3(590.f, 50.f, 0.f));
+
+		glm::mat4 projectionMatrix = glm::ortho(0.f, static_cast<float>(gWSize.x), 0.f, static_cast<float>(gWSize.y), -100.f, 100.f);
+
+		pDefaultShaderProgram->setMatrix4("projectionMat", projectionMatrix);
+
+
 
         /* Loop until the user closes the window ====================================================================== */
         while (!glfwWindowShouldClose(pwindow))
         {
             /* Render here */
-            // openGL function to clear the color buffer, 
-            // which is the buffer that holds the color values for each pixel on the screen. 
-            // This is typically done at the beginning of each frame to clear the previous frame's 
-            // contents and prepare for drawing the new frame.
             glClear(GL_COLOR_BUFFER_BIT);
 
             pDefaultShaderProgram->use();
             glBindVertexArray(vao); 
 			tex->bind();
 
-            glDrawArrays(GL_TRIANGLES, 0, 3); // Issue a draw call to render the vertices as triangles, starting from the first vertex (index 0) and drawing a total of 3 vertices (which form one triangle)
+			pDefaultShaderProgram->setMatrix4("modelMat", modeMatrix_1);
+            glDrawArrays(GL_TRIANGLES, 0, 3); 
+
+            pDefaultShaderProgram->setMatrix4("modelMat", modeMatrix_2);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+
 
 
             /* Swap front and back buffers */
