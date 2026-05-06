@@ -1,7 +1,8 @@
 #include<glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include "renderer/ShaderProgram.h"
+#include"renderer/ShaderProgram.h"
+#include"renderer/Texture2D.h"
 #include"resources/ResourceManager.h"
 
 
@@ -19,7 +20,11 @@ GLfloat colors[] = {
     0.0f, 0.0f, 1.0f 
 };
 
-
+GLfloat texCoords[] = {
+    0.5f, 1.0f, 
+    1.0f, 0.0f, 
+    0.0f, 0.0f
+};
 
 
 int gWindowWidth = 640  ;
@@ -99,6 +104,8 @@ int main(int argc, char** argv)
         }
 
 
+		auto tex =resourceManager.loadTexture("DefaultTexture", "res/textures/map_16x16.png");
+
 
         GLuint points_vbo = 0; 
         glGenBuffers(1, &points_vbo); 
@@ -109,6 +116,13 @@ int main(int argc, char** argv)
         glGenBuffers(1, &colors_vbo); 
         glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW); 
+
+        GLuint texCords_vbo = 0;
+        glGenBuffers(1, &texCords_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, texCords_vbo);
+
+        glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
+
 
         GLuint vao = 0; 
         glGenVertexArrays(1, &vao); 
@@ -122,8 +136,12 @@ int main(int argc, char** argv)
         glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); 
 
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, texCords_vbo);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-
+		pDefaultShaderProgram->use();
+		pDefaultShaderProgram->setInt("tex", 0); 
 
 
         /* Loop until the user closes the window ====================================================================== */
@@ -137,7 +155,9 @@ int main(int argc, char** argv)
             glClear(GL_COLOR_BUFFER_BIT);
 
             pDefaultShaderProgram->use();
-            glBindVertexArray(vao); // Bind the vertex array object, making it the current active VAO for rendering
+            glBindVertexArray(vao); 
+			tex->bind();
+
             glDrawArrays(GL_TRIANGLES, 0, 3); // Issue a draw call to render the vertices as triangles, starting from the first vertex (index 0) and drawing a total of 3 vertices (which form one triangle)
 
 

@@ -81,6 +81,8 @@ namespace Renderer{
 		glUseProgram(m_ID); // Set the current active shader program to the one represented by this ShaderProgram object
 	}
 
+	
+
 	bool ShaderProgram::createShader(const std::string& source, const GLenum shaderType, GLuint& shaderID)
 	{
 
@@ -100,6 +102,11 @@ namespace Renderer{
 			}
 
 		return true;
+	}
+
+	void ShaderProgram::setInt(const std::string& name, const GLint value)
+	{
+		glUniform1i(glGetUniformLocation(m_ID, name.c_str()), value); 
 	}
 
 
