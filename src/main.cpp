@@ -3,6 +3,7 @@
 #include <iostream>
 #include"renderer/ShaderProgram.h"
 #include"renderer/Texture2D.h"
+#include"renderer/Sprite.h"
 #include"resources/ResourceManager.h"
 #include<glm/vec2.hpp>
 #include<glm/mat4x4.hpp>
@@ -109,8 +110,17 @@ int main(int argc, char** argv)
             return -1;
         }
 
+        auto pSpriteShaderProgram = resourceManager.loadShaders("SpriteShader", "res/shaders/vSprite.txt", "res/shaders/fSprite.txt");
+        if (!pSpriteShaderProgram)
+        {
+            std::cerr << "Failed to load sprite shader  !!! Spriteprogram !!!" << "SpriteShader" << std::endl;
+            return -1;
+        }
+
 
 		auto tex =resourceManager.loadTexture("DefaultTexture", "res/textures/new_atlas_128x128.png");
+		auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTexture", "SpriteShader", 50, 100);
+		pSprite->setPosition(glm::vec2(300.f, 100.f));
 
 
         GLuint points_vbo = 0; 
@@ -160,6 +170,12 @@ int main(int argc, char** argv)
 		pDefaultShaderProgram->setMatrix4("projectionMat", projectionMatrix);
 
 
+        pSpriteShaderProgram->use();
+        pSpriteShaderProgram->setInt("tex", 0);
+		pSpriteShaderProgram->setMatrix4("projectionMat", projectionMatrix);
+
+
+
 
         /* Loop until the user closes the window ====================================================================== */
         while (!glfwWindowShouldClose(pwindow))
@@ -177,7 +193,7 @@ int main(int argc, char** argv)
             pDefaultShaderProgram->setMatrix4("modelMat", modeMatrix_2);
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
-
+			pSprite->render();
 
             /* Swap front and back buffers */
             glfwSwapBuffers(pwindow);
